@@ -3,292 +3,315 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Preço-Teto (VALE3)</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Calculadora de Preço Teto</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        /* CSS para estilização */
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f7f9fb;
-            color: #1f2937;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
         }
-        .tab-button {
-            transition: all 0.2s;
-        }
-        .active-tab {
-            border-bottom: 3px solid #10b981;
-            color: #10b981;
-            font-weight: 600;
-        }
-        .input-field {
-            border: 1px solid #d1d5db;
-            padding: 8px 12px;
-            border-radius: 6px;
+
+        .calculator-container {
             width: 100%;
-            transition: border-color 0.2s;
+            max-width: 500px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
-        .input-field:focus {
-            border-color: #10b981;
-            outline: none;
+
+        .tabs {
+            display: flex;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #e0e0e0;
         }
-        .card {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+
+        .tab-button {
+            flex: 1;
+            padding: 16px;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background-color: transparent;
+            color: #777;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
         }
-        .highlight-output {
-            background-color: #ecfdf5; /* Verde claro */
-            color: #065f46;
+
+        .tab-button.active {
+            color: #007bff;
+            border-bottom-color: #007bff;
+        }
+
+        .tab-button:hover:not(.active) {
+            background-color: #f0f0f0;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 24px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box; /* Importante para o padding não quebrar o layout */
+        }
+        
+        .result-display {
+            background-color: #e6f7ff;
+            border: 1px solid #b3e0ff;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .result-display .label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #0056b3;
+            margin: 0;
+        }
+
+        .result-display .price {
+            font-size: 32px;
             font-weight: 700;
-            border: 1px solid #a7f3d0;
+            color: #0056b3;
+            margin: 8px 0 0 0;
         }
-        .info-box {
-            background-color: #fffbeb; /* Amarelo claro */
-            border: 1px solid #fde68a;
-            color: #92400e;
+        
+        .result-display .sub-result {
+            font-size: 14px;
+            color: #555;
+            margin-top: 10px;
         }
     </style>
 </head>
-<body class="p-4 sm:p-8">
+<body>
 
-    <div id="app" class="max-w-4xl mx-auto bg-white rounded-xl card p-6 sm:p-8">
-        <h1 class="text-3xl font-bold mb-6 text-gray-800 border-b pb-3">Calculadora de Preço-Teto - VALE3</h1>
-        <p class="text-sm text-gray-500 mb-6">Fórmula de Benjamin Graham / Décio Bazin: Preço-Teto = Dividendo Projetado / DY Desejado</p>
-
-        <!-- Controle de Abas -->
-        <div class="flex border-b border-gray-200 mb-6">
-            <button class="tab-button px-4 py-2 text-sm focus:outline-none" data-tab="historico">
-                DY Histórico
-            </button>
-            <button class="tab-button px-4 py-2 text-sm focus:outline-none active-tab" data-tab="projetivo">
-                LPA Projetivo (Padrão)
-            </button>
+    <div class="calculator-container">
+        
+        <div class="tabs">
+            <button class="tab-button active" onclick="openTab(event, 'Historico')">📈 Histórico</button>
+            <button class="tab-button" onclick="openTab(event, 'Projetivo')">🔮 Projetivo</button>
+            <button class="tab-button" onclick="openTab(event, 'Hibrido')">⚖️ Híbrido</button>
         </div>
 
-        <!-- Conteúdo das Abas -->
-        <div id="tab-historico" class="tab-content hidden">
-            <div class="mt-6 space-y-4">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <label for="dy_historico" class="text-sm font-medium text-gray-700 sm:w-1/3">DY Desejado (Ex: 6%)</label>
-                    <div class="flex items-center mt-1 sm:mt-0 sm:w-2/3">
-                        <input type="number" id="dy_historico" value="6.0" step="0.1" class="input-field mr-2">
-                        <span class="text-lg font-bold">%</span>
-                    </div>
+        <div id="Historico" class="tab-content active">
+            <h3>Calculadora de Preço Teto Histórico</h3>
+            <form id="form-historico">
+                <div class="form-group">
+                    <label for="dpa-medio-hist">Dividendo por Ação (DPA) Médio (R$)</label>
+                    <input type
+="number" id="dpa-medio-hist" step="0.01" min="0" placeholder="Ex: 3,00" oninput="calcularHistorico()">
                 </div>
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <label for="dividendo_medio" class="text-sm font-medium text-gray-700 sm:w-1/3">Dividendo Médio Histórico (R$)</label>
-                    <div class="flex items-center mt-1 sm:mt-0 sm:w-2/3">
-                        <span class="text-lg font-bold">R$</span>
-                        <input type="number" id="dividendo_medio" value="3.50" step="0.01" class="input-field ml-2">
-                    </div>
+                <div class="form-group">
+                    <label for="dy-desejado-hist">Dividend Yield (DY) Desejado (%)</label>
+                    <input type="number" id="dy-desejado-hist" step="0.1" min="0" value="6" placeholder="Ex: 6" oninput="calcularHistorico()">
                 </div>
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 mt-6 rounded-lg highlight-output">
-                    <span class="text-lg font-semibold sm:w-1/2">Preço-Teto Calculado</span>
-                    <span id="preco_teto_historico_output" class="text-2xl font-extrabold mt-1 sm:mt-0 sm:w-1/2 text-right">R$ 0,00</span>
-                </div>
+            </form>
+            <div id="result-hist" class="result-display">
+                <p class="label">Preço Teto Histórico</p>
+                <p class="price" id="price-hist">R$ 0,00</p>
             </div>
         </div>
 
-        <div id="tab-projetivo" class="tab-content">
-            <div class="mt-6 space-y-4">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 info-box rounded-lg">
-                    <label for="lpa12m" class="text-sm font-medium sm:w-1/3">LPA 12M (R$) - Extraído dos PDFs</label>
-                    <!-- VALOR ATUALIZADO COM SEU PDF: R$ 4,78 (Lucro Básico por Ação) -->
-                    <div class="flex items-center mt-1 sm:mt-0 sm:w-2/3">
-                        <span class="text-lg font-bold">R$</span>
-                        <input type="number" id="lpa12m" value="4.78" step="0.01" class="input-field ml-2 border-yellow-500">
-                    </div>
+        <div id="Projetivo" class="tab-content">
+            <h3>Calculadora de Preço Teto Projetivo</h3>
+            <form id="form-projetivo">
+                <div class="form-group">
+                    <label for="lpa-proj">Lucro por Ação (LPA) Projetivo (R$)</label>
+                    <input type="number" id="lpa-proj" step="0.01" min="0" placeholder="Ex: 6,00" oninput="calcularProjetivo()">
                 </div>
-                
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <label for="payout_medio" class="text-sm font-medium text-gray-700 sm:w-1/3">Payout Médio Esperado (%)</label>
-                    <div class="flex items-center mt-1 sm:mt-0 sm:w-2/3">
-                        <input type="number" id="payout_medio" value="50.0" step="0.1" class="input-field mr-2">
-                        <span class="text-lg font-bold">%</span>
-                    </div>
+                <div class="form-group">
+                    <label for="payout-proj">Payout Médio (%)</label>
+                    <input type="number" id="payout-proj" step="1" min="0" max="100" placeholder="Ex: 50" oninput="calcularProjetivo()">
                 </div>
-                
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <label for="dy_projetivo" class="text-sm font-medium text-gray-700 sm:w-1/3">DY Desejado (Ex: 6%)</label>
-                    <div class="flex items-center mt-1 sm:mt-0 sm:w-2/3">
-                        <input type="number" id="dy_projetivo" value="6.0" step="0.1" class="input-field mr-2">
-                        <span class="text-lg font-bold">%</span>
-                    </div>
+                <div class="form-group">
+                    <label for="dy-desejado-proj">Dividend Yield (DY) Desejado (%)</label>
+                    <input type="number" id="dy-desejado-proj" step="0.1" min="0" value="6" placeholder="Ex: 6" oninput="calcularProjetivo()">
                 </div>
-
-                <!-- Resultado Intermediário: Dividendo Projetado -->
-                <div class="p-4 mt-6 rounded-lg bg-blue-50 border border-blue-200 text-blue-800">
-                    <h3 class="text-lg font-bold mb-2">Dividendo Projetado</h3>
-                    <div class="flex flex-col sm:flex-row justify-between text-base">
-                        <span class="font-medium">Dividendo Projetado (R$): (LPA * Payout)</span>
-                        <span id="dividendo_projetado_output" class="font-extrabold mt-1 sm:mt-0 text-right">R$ 0,00</span>
-                    </div>
-                </div>
-
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 mt-6 rounded-lg highlight-output">
-                    <span class="text-lg font-semibold sm:w-1/2">Preço-Teto (Projetivo)</span>
-                    <span id="preco_teto_projetivo_output" class="text-2xl font-extrabold mt-1 sm:mt-0 sm:w-1/2 text-right">R$ 0,00</span>
-                </div>
+            </form>
+            <div id="result-proj" class="result-display">
+                <p class="label">Preço Teto Projetivo</p>
+                <p class="price" id="price-proj">R$ 0,00</p>
+                <p class="sub-result" id="dpa-proj-info">DPA Projetivo: R$ 0,00</p>
             </div>
         </div>
 
-        <!-- Log de Autenticação (Apenas para fins de ambiente Canvas) -->
-        <div id="auth-log" class="mt-8 text-xs text-gray-400 border-t pt-4">
-            Autenticação do Firebase (apenas para ambiente Canvas): <span id="user-status" class="font-mono text-red-500">Inicializando...</span>
+        <div id="Hibrido" class="tab-content">
+            <h3>Calculadora de Preço Teto Híbrido</h3>
+            <form id="form-hibrido">
+                <div class="form-group">
+                    <label for="dpa-medio-hib">DPA Médio Histórico (R$)</label>
+                    <input type="number" id="dpa-medio-hib" step="0.01" min="0" placeholder="Ex: 3,00" oninput="calcularHibrido()">
+                </div>
+                <div class="form-group">
+                    <label for="lpa-proj-hib">LPA Projetivo (R$)</label>
+                    <input type="number" id="lpa-proj-hib" step="0.01" min="0" placeholder="Ex: 6,00" oninput="calcularHibrido()">
+                </div>
+                <div class="form-group">
+                    <label for="payout-hib">Payout Médio (%)</label>
+                    <input type="number" id="payout-hib" step="1" min="0" max="100" placeholder="Ex: 50" oninput="calcularHibrido()">
+                </div>
+                <div class="form-group">
+                    <label for="dy-desejado-hib">Dividend Yield (DY) Desejado (%)</label>
+                    <input type="number" id="dy-desejado-hib" step="0.1" min="0" value="6" placeholder="Ex: 6" oninput="calcularHibrido()">
+                </div>
+            </form>
+            <div id="result-hib" class="result-display">
+                <p class="label">Preço Teto Híbrido (Conservador)</p>
+                <p class="price" id="price-hib-cons">R$ 0,00</p>
+                <p class="sub-result" id="price-hib-media">Teto Médio: R$ 0,00</p>
+            </div>
         </div>
+
     </div>
 
-    <script type="module">
-        // Variáveis globais fornecidas pelo ambiente Canvas (necessárias para o Firebase)
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-        let db = null;
-        let auth = null;
-        let userId = null;
-
-        // Importações do Firebase (necessárias mesmo que o Firestore não seja usado ativamente)
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Funções de Cálculo
-        function calculatePrecoTeto() {
-            // Aba Histórico
-            const dy_historico_input = document.getElementById('dy_historico');
-            const dividendo_medio_input = document.getElementById('dividendo_medio');
-            
-            const dy_historico = parseFloat(dy_historico_input.value);
-            const dividendo_medio = parseFloat(dividendo_medio_input.value);
-            
-            let precoTetoHistorico = 0;
-            
-            if (dy_historico > 0 && !isNaN(dividendo_medio) && !isNaN(dy_historico)) {
-                // Preço Teto Histórico = Dividendo Médio / DY Desejado (convertido para decimal)
-                precoTetoHistorico = dividendo_medio / (dy_historico / 100);
-            }
-            document.getElementById('preco_teto_historico_output').textContent = formatCurrency(precoTetoHistorico);
-
-            // Aba Projetivo
-            const lpa12m_input = document.getElementById('lpa12m');
-            const payout_medio_input = document.getElementById('payout_medio');
-            const dy_projetivo_input = document.getElementById('dy_projetivo');
-            
-            const lpa12m = parseFloat(lpa12m_input.value);
-            const payout_medio = parseFloat(payout_medio_input.value);
-            const dy_projetivo = parseFloat(dy_projetivo_input.value);
-            
-            // Verifica se os inputs são números válidos para o cálculo projetivo
-            if (isNaN(lpa12m) || isNaN(payout_medio) || isNaN(dy_projetivo)) {
-                document.getElementById('dividendo_projetado_output').textContent = formatCurrency(0);
-                document.getElementById('preco_teto_projetivo_output').textContent = formatCurrency(0);
-                return;
+    <script>
+        // --- LÓGICA DAS ABAS ---
+        function openTab(evt, tabName) {
+            // Esconde todo o conteúdo
+            let tabcontent = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
             }
 
-            // Dividendo Projetado = LPA 12M * Payout Médio (convertido para decimal)
-            const dividendoProjetado = lpa12m * (payout_medio / 100);
-            document.getElementById('dividendo_projetado_output').textContent = formatCurrency(dividendoProjetado);
-
-            let precoTetoProjetivo = 0;
-            if (dy_projetivo > 0) {
-                // Preço Teto Projetivo = Dividendo Projetado / DY Desejado (convertido para decimal)
-                precoTetoProjetivo = dividendoProjetado / (dy_projetivo / 100);
+            // Remove a classe "active" de todos os botões
+            let tabbuttons = document.getElementsByClassName("tab-button");
+            for (let i = 0; i < tabbuttons.length; i++) {
+                tabbuttons[i].className = tabbuttons[i].className.replace(" active", "");
             }
-            document.getElementById('preco_teto_projetivo_output').textContent = formatCurrency(precoTetoProjetivo);
+
+            // Mostra a aba clicada e adiciona a classe "active" ao botão
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
         }
 
-        // Função de Formatação
+        // --- FUNÇÕES DE CÁLCULO ---
+
+        // Função para formatar como moeda BRL
         function formatCurrency(value) {
-            // Garante que 0 ou NaN sejam formatados como R$ 0,00
-            const numberValue = isNaN(value) ? 0 : value;
-            return new Intl.NumberFormat('pt-BR', {
-                style: 'currency',
-                currency: 'BRL',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }).format(numberValue);
-        }
-
-        // Funções de UI
-        function setupTabs() {
-            const tabs = document.querySelectorAll('.tab-button');
-            const contents = document.querySelectorAll('.tab-content');
-
-            tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const target = tab.getAttribute('data-tab');
-
-                    tabs.forEach(t => t.classList.remove('active-tab'));
-                    tab.classList.add('active-tab');
-
-                    contents.forEach(content => {
-                        if (content.id === `tab-${target}`) {
-                            content.classList.remove('hidden');
-                        } else {
-                            content.classList.add('hidden');
-                        }
-                    });
-                });
-            });
-            // Ativar a aba padrão (Projetivo)
-            document.querySelector('[data-tab="projetivo"]').click();
-        }
-
-        function setupEventListeners() {
-            const inputs = document.querySelectorAll('#app input[type="number"]');
-            inputs.forEach(input => {
-                input.addEventListener('input', calculatePrecoTeto);
-            });
-        }
-        
-        // Inicialização do Firebase (apenas para fins de conformidade com o ambiente)
-        async function initializeFirebase() {
-            try {
-                if (firebaseConfig) {
-                    setLogLevel('debug'); // Ativar logs
-                    const app = initializeApp(firebaseConfig);
-                    db = getFirestore(app);
-                    auth = getAuth(app);
-
-                    // Autenticação
-                    if (initialAuthToken) {
-                        await signInWithCustomToken(auth, initialAuthToken);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-
-                    onAuthStateChanged(auth, (user) => {
-                        const statusElement = document.getElementById('user-status');
-                        if (user) {
-                            userId = user.uid;
-                            statusElement.textContent = `Usuário ID: ${userId} (App ID: ${appId})`;
-                            statusElement.classList.remove('text-red-500');
-                            statusElement.classList.add('text-green-500');
-                        } else {
-                            userId = null;
-                            statusElement.textContent = 'Não autenticado (Anônimo ou Falha)';
-                            statusElement.classList.remove('text-green-500');
-                            statusElement.classList.add('text-red-500');
-                        }
-                        calculatePrecoTeto();
-                    });
-                } else {
-                    document.getElementById('user-status').textContent = 'Configuração do Firebase ausente.';
-                    calculatePrecoTeto(); 
-                }
-            } catch (error) {
-                console.error("Erro na inicialização do Firebase:", error);
-                document.getElementById('user-status').textContent = `Erro: ${error.message}`;
-                calculatePrecoTeto();
+            if (isNaN(value) || !isFinite(value)) {
+                return "R$ 0,00";
             }
+            return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
 
-        // Inicialização principal
-        window.onload = () => {
-            setupTabs();
-            setupEventListeners();
-            initializeFirebase(); 
-            calculatePrecoTeto();
-        };
+        // 1. Calculadora Histórica
+        function calcularHistorico() {
+            const dpaMedio = parseFloat(document.getElementById('dpa-medio-hist').value);
+            const dyDesejado = parseFloat(document.getElementById('dy-desejado-hist').value);
+
+            let precoTeto = 0;
+            if (dpaMedio > 0 && dyDesejado > 0) {
+                precoTeto = dpaMedio / (dyDesejado / 100);
+            }
+
+            document.getElementById('price-hist').innerText = formatCurrency(precoTeto);
+        }
+
+        // 2. Calculadora Projetiva
+        function calcularProjetivo() {
+            const lpa = parseFloat(document.getElementById('lpa-proj').value);
+            const payout = parseFloat(document.getElementById('payout-proj').value);
+            const dyDesejado = parseFloat(document.getElementById('dy-desejado-proj').value);
+
+            let dpaProjetivo = 0;
+            if (lpa > 0 && payout > 0) {
+                dpaProjetivo = lpa * (payout / 100);
+            }
+            
+            let precoTeto = 0;
+            if (dpaProjetivo > 0 && dyDesejado > 0) {
+                precoTeto = dpaProjetivo / (dyDesejado / 100);
+            }
+
+            document.getElementById('dpa-proj-info').innerText = `DPA Projetivo: ${formatCurrency(dpaProjetivo)}`;
+            document.getElementById('price-proj').innerText = formatCurrency(precoTeto);
+        }
+
+        // 3. Calculadora Híbrida
+        function calcularHibrido() {
+            // Inputs
+            const dpaMedioHist = parseFloat(document.getElementById('dpa-medio-hib').value);
+            const lpaProj = parseFloat(document.getElementById('lpa-proj-hib').value);
+            const payout = parseFloat(document.getElementById('payout-hib').value);
+            const dyDesejado = parseFloat(document.getElementById('dy-desejado-hib').value);
+
+            let precoTetoHist = 0;
+            let precoTetoProj = 0;
+            
+            const dyDecimal = dyDesejado / 100;
+
+            // Calcular Teto Histórico
+            if (dpaMedioHist > 0 && dyDecimal > 0) {
+                precoTetoHist = dpaMedioHist / dyDecimal;
+            }
+
+            // Calcular Teto Projetivo
+            let dpaProjetivo = 0;
+            if (lpaProj > 0 && payout > 0) {
+                dpaProjetivo = lpaProj * (payout / 100);
+            }
+            if (dpaProjetivo > 0 && dyDecimal > 0) {
+                precoTetoProj = dpaProjetivo / dyDecimal;
+            }
+            
+            // Calcular Resultados Híbridos
+            // (Considera 0 se um dos valores não for calculado)
+            const tetoHistValido = precoTetoHist > 0 ? precoTetoHist : 0;
+            const tetoProjValido = precoTetoProj > 0 ? precoTetoProj : 0;
+
+            let tetoConservador = 0;
+            if (tetoHistValido > 0 && tetoProjValido > 0) {
+                tetoConservador = Math.min(tetoHistValido, tetoProjValido);
+            } else if (tetoHistValido > 0) {
+                tetoConservador = tetoHistValido;
+            } else {
+                tetoConservador = tetoProjValido;
+            }
+            
+            const tetoMedio = (tetoHistValido + tetoProjValido) / 2;
+
+            // Exibir resultados
+            document.getElementById('price-hib-cons').innerText = formatCurrency(tetoConservador);
+            document.getElementById('price-hib-media').innerText = `Teto Médio: ${formatCurrency(tetoMedio)}`;
+        }
+
+        // Garante que a primeira aba seja exibida corretamente no carregamento
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelector('.tab-button.active').click();
+        });
     </script>
+
 </body>
 </html>
