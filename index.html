@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Simulador Financeiro</title>
+  <title>Calculadora de Juros Compostos</title>
 
+  <!-- FAVICON -->
   <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
@@ -34,34 +36,7 @@
 
     h1 {
       text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .tabs {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
       margin-bottom: 30px;
-    }
-
-    .tab {
-      padding: 12px 26px;
-      border-radius: 10px;
-      cursor: pointer;
-      background: #e2e8f0;
-      font-weight: bold;
-    }
-
-    .tab.active {
-      background: var(--primary);
-    }
-
-    .section {
-      display: none;
-    }
-
-    .section.active {
-      display: block;
     }
 
     .form {
@@ -112,142 +87,214 @@
       background: var(--gray);
       padding: 24px;
       border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 120px;
       text-align: center;
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      color: #334155;
+    }
+
+    .card p {
+      margin: 0;
+      font-size: 22px;
+      font-weight: bold;
     }
 
     canvas {
+      margin-top: 50px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
       margin-top: 40px;
     }
 
-    footer {
-      margin-top: 60px;
-      padding-top: 20px;
-      border-top: 1px solid #e2e8f0;
+    table th, table td {
+      padding: 10px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: right;
+    }
+
+    table th {
+      background: #f8fafc;
       text-align: center;
-      font-size: 14px;
     }
   </style>
 </head>
 
 <body>
-<div class="container">
-  <h1>Simulador Financeiro</h1>
+  <div class="container">
+    <h1>Calculadora de Juros Compostos</h1>
 
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab('juros', this)">📊 Juros Compostos</div>
-    <div class="tab" onclick="switchTab('meta', this)">🎯 Simulador de Metas</div>
-  </div>
-
-  <!-- JUROS -->
-  <div id="juros" class="section active">
-    <!-- SEU CÓDIGO ORIGINAL DE JUROS (INALTERADO) -->
-    <!-- inputs, cálculo, gráfico e tabela exatamente como você validou -->
-    <!-- (mantive integralmente – omitido aqui apenas para clareza visual) -->
-  </div>
-
-  <!-- METAS -->
-  <div id="meta" class="section">
     <div class="form">
       <div>
-        <label>Meta Financeira (R$)</label>
-        <input type="text" id="goalValue" value="500.000,00">
+        <label>Valor Inicial (R$)</label>
+        <input type="text" id="initial" value="25.000,00">
       </div>
 
       <div>
-        <label>Valor Inicial (R$)</label>
-        <input type="text" id="goalInitial" value="25.000,00">
+        <label>Aporte Mensal (R$)</label>
+        <input type="text" id="monthly" value="200,00">
       </div>
 
       <div>
         <label>Taxa de Juros (%)</label>
-        <input type="number" id="goalRate" value="12">
+        <input type="number" id="rate" value="15" step="0.01">
       </div>
 
       <div>
         <label>Tipo da Taxa</label>
-        <select id="goalRateType">
-          <option value="annual">Anual</option>
+        <select id="rateType">
           <option value="monthly">Mensal</option>
+          <option value="annual" selected>Anual</option>
         </select>
       </div>
 
       <div>
-        <label>Prazo (anos)</label>
-        <input type="number" id="goalTime" value="20">
+        <label>Período</label>
+        <input type="number" id="time" value="10">
+      </div>
+
+      <div>
+        <label>Tipo do Período</label>
+        <select id="timeType">
+          <option value="years" selected>Anos</option>
+          <option value="months">Meses</option>
+        </select>
       </div>
     </div>
 
     <div class="actions">
-      <button onclick="calculateGoal()">Calcular Meta</button>
+      <button onclick="calculate()">Calcular</button>
     </div>
 
     <div class="results">
       <div class="card">
-        <h3>Aporte Mensal Necessário</h3>
-        <p id="goalMonthly">R$ 0,00</p>
+        <h3>Total Investido</h3>
+        <p id="totalInvested">R$ 0,00</p>
+      </div>
+      <div class="card">
+        <h3>Juros Ganhos</h3>
+        <p id="interest">R$ 0,00</p>
+      </div>
+      <div class="card">
+        <h3>Montante Final</h3>
+        <p id="total">R$ 0,00</p>
       </div>
     </div>
 
-    <canvas id="goalChart"></canvas>
+    <canvas id="chart"></canvas>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Mês</th>
+          <th>Saldo</th>
+          <th>Total Investido</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+
+    <footer style="margin-top:60px;padding-top:20px;border-top:1px solid #e2e8f0;text-align:center;font-size:14px;color:#475569;">
+      Desenvolvido por <strong>Macollin Felipe</strong> • 
+      <a href="https://www.youtube.com/@macollinfelipe" target="_blank" style="color:#0f172a;font-weight:bold;text-decoration:none;">
+        Canal no YouTube
+      </a>
+    </footer>
   </div>
 
-  <footer>
-    Desenvolvido por <strong>Macollin Felipe</strong>
-  </footer>
-</div>
-
 <script>
-  let goalChart;
+  let chart;
 
-  function switchTab(id, el) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    el.classList.add('active');
+  function parseBRL(value) {
+    return Number(value.replace(/\./g, '').replace(',', '.')) || 0;
   }
 
-  function parseBRL(v) {
-    return Number(v.replace(/\./g, '').replace(',', '.')) || 0;
+  function formatBRL(value) {
+    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
 
-  function formatBRL(v) {
-    return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  function applyCurrencyMask(input) {
+    input.addEventListener('blur', () => {
+      const val = parseBRL(input.value);
+      input.value = formatBRL(val).replace('R$', '').trim();
+    });
   }
 
-  function calculateGoal() {
-    const goal = parseBRL(goalValue.value);
-    const initial = parseBRL(goalInitial.value);
-    let rate = Number(goalRate.value) / 100;
-    const months = Number(goalTime.value) * 12;
+  ['initial', 'monthly'].forEach(id => applyCurrencyMask(document.getElementById(id)));
 
-    if (goalRateType.value === 'annual') rate /= 12;
+  function calculate() {
+    const initial = parseBRL(document.getElementById('initial').value);
+    const monthly = parseBRL(document.getElementById('monthly').value);
+    let rate = Number(document.getElementById('rate').value) / 100;
+    const rateType = document.getElementById('rateType').value;
+    let time = Number(document.getElementById('time').value);
+    const timeType = document.getElementById('timeType').value;
 
-    const monthly =
-      (goal - initial * Math.pow(1 + rate, months)) /
-      ((Math.pow(1 + rate, months) - 1) / rate);
-
-    goalMonthly.innerText = formatBRL(Math.max(monthly, 0));
+    if (rateType === 'annual') rate /= 12;
+    if (timeType === 'years') time *= 12;
 
     let balance = initial;
-    const data = [];
-    const labels = [];
+    let invested = initial;
 
-    for (let i = 1; i <= months; i++) {
+    const labels = [];
+    const totalData = [];
+    const investedData = [];
+    const interestData = [];
+
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+
+    for (let i = 1; i <= time; i++) {
       balance = balance * (1 + rate) + monthly;
+      invested += monthly;
+
       labels.push(i);
-      data.push(balance);
+      totalData.push(balance);
+      investedData.push(invested);
+      interestData.push(balance - invested);
+
+      tbody.insertAdjacentHTML('beforeend', `
+        <tr>
+          <td style="text-align:center">${i}</td>
+          <td>${formatBRL(balance)}</td>
+          <td>${formatBRL(invested)}</td>
+        </tr>
+      `);
     }
 
-    if (goalChart) goalChart.destroy();
+    document.getElementById('totalInvested').innerText = formatBRL(invested);
+    document.getElementById('total').innerText = formatBRL(balance);
+    document.getElementById('interest').innerText = formatBRL(balance - invested);
 
-    goalChart = new Chart(document.getElementById('goalChart'), {
+    if (chart) chart.destroy();
+
+    chart = new Chart(document.getElementById('chart'), {
       type: 'line',
       data: {
         labels,
-        datasets: [{ label: 'Evolução até a Meta', data, borderWidth: 2 }]
+        datasets: [
+          { label: 'Montante Total', data: totalData, borderWidth: 2 },
+          { label: 'Total Investido', data: investedData, borderWidth: 2 },
+          { label: 'Juros Acumulados', data: interestData, borderWidth: 2 }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom' } }
       }
     });
   }
 </script>
 </body>
 </html>
+
