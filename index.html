@@ -1,291 +1,152 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Calculadora de Juros Compostos</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    :root {
-      --primary: #ffb703;
-      --dark: #0f172a;
-      --light: #ffffff;
-      --gray: #f1f5f9;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Juros Compostos</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: var(--gray);
-      color: var(--dark);
-    }
-
-    .container {
-      max-width: 1100px;
-      margin: 40px auto;
-      background: var(--light);
-      padding: 32px;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.08);
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    .form {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-      margin-bottom: 30px;
-    }
-
-    label {
-      font-size: 14px;
-      font-weight: bold;
-      margin-bottom: 6px;
-      display: block;
-    }
-
-    input, select {
-      width: 100%;
-      padding: 12px;
-      font-size: 15px;
-      border-radius: 8px;
-      border: 1px solid #cbd5e1;
-    }
-
-    .actions {
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    button {
-      background: var(--primary);
-      border: none;
-      padding: 14px 40px;
-      font-size: 16px;
-      border-radius: 10px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    button:hover {
-      opacity: .9;
-    }
-
-    .results {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 20px;
-      margin-top: 40px;
-    }
-
-    .card {
-      background: var(--gray);
-      padding: 20px;
-      border-radius: 10px;
-      text-align: center;
-    }
-
-    .card h3 {
-      margin-bottom: 10px;
-      font-size: 15px;
-      color: #334155;
-    }
-
-    .card p {
-      font-size: 20px;
-      font-weight: bold;
-    }
-
-    canvas {
-      margin-top: 40px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 40px;
-    }
-
-    table th, table td {
-      padding: 10px;
-      border-bottom: 1px solid #e2e8f0;
-      text-align: right;
-    }
-
-    table th {
-      background: #f8fafc;
-      text-align: center;
-    }
-  </style>
+<style>
+:root{
+  --primary:#ffb703;
+  --dark:#0f172a;
+  --gray:#f1f5f9;
+}
+body{margin:0;font-family:Arial;background:var(--gray);color:var(--dark);}
+.container{max-width:1100px;margin:40px auto;background:#fff;padding:32px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.08);}
+h1{text-align:center;margin-bottom:30px;}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;}
+label{font-weight:bold;font-size:14px;}
+input,select{padding:12px;border-radius:8px;border:1px solid #cbd5e1;font-size:15px;}
+.actions{text-align:center;margin-top:20px;}
+button{background:var(--primary);border:none;padding:14px 40px;font-size:16px;border-radius:10px;font-weight:bold;cursor:pointer;}
+.results{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-top:40px;}
+.card{background:var(--gray);padding:20px;border-radius:10px;text-align:center;}
+canvas,table{margin-top:40px;}
+table{width:100%;border-collapse:collapse;}
+th,td{padding:10px;border-bottom:1px solid #e2e8f0;text-align:right;}
+th{text-align:center;background:#f8fafc;}
+footer{text-align:center;margin-top:50px;font-size:14px;color:#475569;}
+</style>
 </head>
+
 <body>
-  <div class="container">
-    <h1>Calculadora de Juros Compostos</h1>
+<div class="container">
+<h1>Calculadora de Juros Compostos</h1>
 
-    <div class="form">
-      <div>
-        <label>Valor Inicial (R$)</label>
-        <input type="number" id="initial" value="1000" />
-      </div>
-      <div>
-        <label>Aporte Mensal (R$)</label>
-        <input type="number" id="monthly" value="200" />
-      </div>
-      <div>
-        <label>Taxa de Juros (%)</label>
-        <input type="number" id="rate" value="1" step="0.01" />
-      </div>
-      <div>
-        <label>Tipo da Taxa</label>
-        <select id="rateType">
-          <option value="monthly">Mensal</option>
-          <option value="annual">Anual</option>
-        </select>
-      </div>
-      <div>
-        <label>Período</label>
-        <input type="number" id="time" value="10" />
-      </div>
-      <div>
-        <label>Tipo do Período</label>
-        <select id="timeType">
-          <option value="years">Anos</option>
-          <option value="months">Meses</option>
-        </select>
-      </div>
-    </div>
+<div class="form">
+  <div>
+    <label>Valor Inicial (R$)</label>
+    <input type="text" id="initial" value="1.000,00">
+  </div>
+  <div>
+    <label>Aporte Mensal (R$)</label>
+    <input type="text" id="monthly" value="200,00">
+  </div>
+  <div>
+    <label>Taxa de Juros (%)</label>
+    <input type="number" id="rate" value="1" step="0.01">
+  </div>
+  <div>
+    <label>Tipo da Taxa</label>
+    <select id="rateType">
+      <option value="monthly">Mensal</option>
+      <option value="annual">Anual</option>
+    </select>
+  </div>
+  <div>
+    <label>Período</label>
+    <input type="number" id="time" value="10">
+  </div>
+  <div>
+    <label>Tipo do Período</label>
+    <select id="timeType">
+      <option value="years">Anos</option>
+      <option value="months">Meses</option>
+    </select>
+  </div>
+</div>
 
-    <div class="actions">
-      <button onclick="calculate()">Calcular</button>
-    </div>
+<div class="actions">
+  <button onclick="calculate()">Calcular</button>
+</div>
 
-    <div class="results">
-      <div class="card">
-        <h3>Total Investido</h3>
-        <p id="totalInvested">R$ 0,00</p>
-      </div>
-      <div class="card">
-        <h3>Juros Ganhos</h3>
-        <p id="interest">R$ 0,00</p>
-      </div>
-      <div class="card">
-        <h3>Montante Final</h3>
-        <p id="total">R$ 0,00</p>
-      </div>
-    </div>
+<div class="results">
+  <div class="card"><h3>Total Investido</h3><p id="totalInvested">R$ 0,00</p></div>
+  <div class="card"><h3>Juros Ganhos</h3><p id="interest">R$ 0,00</p></div>
+  <div class="card"><h3>Montante Final</h3><p id="total">R$ 0,00</p></div>
+</div>
 
-    <canvas id="chart"></canvas>
+<canvas id="chart"></canvas>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Mês</th>
-          <th>Saldo</th>
-          <th>Total Investido</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
-    <footer style="margin-top:60px;padding-top:20px;border-top:1px solid #e2e8f0;text-align:center;font-size:14px;color:#475569;">
-    Desenvolvido por <strong>Macollin Felipe</strong> • 
-    <a href="https://www.youtube.com/@macollinfelipe" target="_blank" style="color:#0f172a;font-weight:bold;text-decoration:none;">
-      Canal no YouTube
-    </a>
-  </footer>
+<table>
+<thead><tr><th>Mês</th><th>Saldo</th><th>Total Investido</th></tr></thead>
+<tbody id="tableBody"></tbody>
+</table>
+
+<footer>
+Desenvolvido por <strong>Macollin Felipe</strong> • 
+<a href="https://www.youtube.com/@macollinfelipe" target="_blank"><strong>Canal no YouTube</strong></a>
+</footer>
 </div>
 
 <script>
-    let chart;
+let chart;
 
-    function format(value) {
-      return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    }
+// ==== MÁSCARA MONETÁRIA ====
+function maskCurrency(input){
+  let v = input.value.replace(/\D/g,'');
+  v = (v/100).toFixed(2).replace('.',',').replace(/(\d)(?=(\d{3})+(?!\d))/g,'$1.');
+  input.value = v;
+}
+function parseCurrency(v){
+  return Number(v.replace(/\./g,'').replace(',','.')) || 0;
+}
+['initial','monthly'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',e=>maskCurrency(e.target));
+});
 
-    function calculate() {
-      const initial = Number(document.getElementById('initial').value);
-      const monthly = Number(document.getElementById('monthly').value);
-      let rate = Number(document.getElementById('rate').value) / 100;
-      const rateType = document.getElementById('rateType').value;
-      let time = Number(document.getElementById('time').value);
-      const timeType = document.getElementById('timeType').value;
+// ==== CÁLCULO ====
+function format(v){return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});}
 
-      if (rateType === 'annual') rate = rate / 12;
-      if (timeType === 'years') time = time * 12;
+function calculate(){
+  const initial = parseCurrency(document.getElementById('initial').value);
+  const monthly = parseCurrency(document.getElementById('monthly').value);
+  let rate = document.getElementById('rate').value / 100;
+  if(rateType.value==='annual') rate/=12;
+  let months = timeType.value==='years' ? time.value*12 : time.value;
 
-      let balance = initial;
-      let invested = initial;
-      const labels = [];
-      const data = [];
-      const tbody = document.getElementById('tableBody');
-      tbody.innerHTML = '';
+  let balance = initial;
+  let invested = initial;
+  const labels=[], total=[];
+  tableBody.innerHTML='';
 
-      for (let i = 1; i <= time; i++) {
-        balance = balance * (1 + rate) + monthly;
-        invested += monthly;
+  for(let i=1;i<=months;i++){
+    balance = balance*(1+rate)+monthly;
+    invested += monthly;
+    labels.push(i);
+    total.push(balance);
+    tableBody.innerHTML+=`<tr><td style="text-align:center">${i}</td><td>${format(balance)}</td><td>${format(invested)}</td></tr>`;
+  }
 
-        labels.push(i);
-        data.push(balance);
+  totalInvested.innerText=format(invested);
+  total.innerText=format(balance);
+  interest.innerText=format(balance-invested);
 
-        const row = `<tr>
-          <td style="text-align:center">${i}</td>
-          <td>${format(balance)}</td>
-          <td>${format(invested)}</td>
-        </tr>`;
-        tbody.insertAdjacentHTML('beforeend', row);
-      }
-
-      document.getElementById('totalInvested').innerText = format(invested);
-      document.getElementById('total').innerText = format(balance);
-      document.getElementById('interest').innerText = format(balance - invested);
-
-      if (chart) chart.destroy();
-
-      chart = new Chart(document.getElementById('chart'), {
-        type: 'line',
-        data: {
-          labels,
-          datasets: [
-            {
-              label: 'Montante Total',
-              data,
-              borderWidth: 2
-            },
-            {
-              label: 'Total Investido',
-              data: labels.map((_, i) => initial + monthly * (i + 1)),
-              borderWidth: 2
-            },
-            {
-              label: 'Juros Acumulados',
-              data: data.map((v, i) => v - (initial + monthly * (i + 1))),
-              borderWidth: 2
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { position: 'bottom' } }
-        }
-      });(document.getElementById('chart'), {
-        type: 'line',
-        data: {
-          labels,
-          datasets: [{
-            label: 'Evolução do Patrimônio',
-            data,
-            borderWidth: 2
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { display: false } }
-        }
-      });
-    }
-  </script>
+  if(chart) chart.destroy();
+  chart = new Chart(document.getElementById('chart'),{
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {label:'Montante Total',data:total},
+        {label:'Total Investido',data:labels.map((_,i)=>initial+monthly*(i+1))},
+        {label:'Juros Acumulados',data:total.map((v,i)=>v-(initial+monthly*(i+1)))}
+      ]
+    },
+    options:{responsive:true,plugins:{legend:{position:'bottom'}}}
+  });
+}
+</script>
 </body>
 </html>
