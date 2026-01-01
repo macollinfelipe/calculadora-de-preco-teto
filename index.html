@@ -242,6 +242,32 @@
         type: 'line',
         data: {
           labels,
+          datasets: [
+            {
+              label: 'Montante Total',
+              data,
+              borderWidth: 2
+            },
+            {
+              label: 'Total Investido',
+              data: labels.map((_, i) => initial + monthly * (i + 1)),
+              borderWidth: 2
+            },
+            {
+              label: 'Juros Acumulados',
+              data: data.map((v, i) => v - (initial + monthly * (i + 1))),
+              borderWidth: 2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });(document.getElementById('chart'), {
+        type: 'line',
+        data: {
+          labels,
           datasets: [{
             label: 'Evolução do Patrimônio',
             data,
