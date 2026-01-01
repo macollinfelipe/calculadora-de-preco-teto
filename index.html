@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link rel="icon" href="./favicon-32x32.png">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     body {
@@ -21,27 +20,29 @@
       margin: 40px auto;
       background: #fff;
       padding: 32px;
-      border-radius: 12px;
+      border-radius: 14px;
     }
 
     h1 {
       text-align: center;
+      margin-bottom: 30px;
     }
 
     /* MENU */
     .tabs {
       display: flex;
       justify-content: center;
-      gap: 10px;
-      margin-bottom: 30px;
+      gap: 12px;
+      margin-bottom: 40px;
     }
 
     .tab {
-      padding: 12px 24px;
-      border-radius: 8px;
+      padding: 12px 26px;
+      border-radius: 10px;
       cursor: pointer;
       background: #e2e8f0;
       font-weight: bold;
+      transition: 0.3s;
     }
 
     .tab.active {
@@ -56,21 +57,28 @@
       display: block;
     }
 
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
     label {
-      display: block;
       font-weight: bold;
+      display: block;
       margin-bottom: 6px;
     }
 
     input, select {
       width: 100%;
       padding: 12px;
-      margin-bottom: 15px;
       border-radius: 8px;
       border: 1px solid #cbd5e1;
     }
 
-    button {
+    .btn {
+      display: block;
+      margin: 30px auto;
       background: #ffb703;
       border: none;
       padding: 14px 40px;
@@ -79,12 +87,22 @@
       cursor: pointer;
     }
 
-    .result-box {
+    .results {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
       margin-top: 30px;
+    }
+
+    .card {
       background: #f8fafc;
       padding: 24px;
-      border-radius: 12px;
+      border-radius: 14px;
       text-align: center;
+    }
+
+    .card h3 {
+      margin-bottom: 10px;
     }
 
     footer {
@@ -103,79 +121,163 @@
 
   <!-- MENU -->
   <div class="tabs">
-    <div class="tab active" onclick="showTab('juros')">📊 Juros Compostos</div>
-    <div class="tab" onclick="showTab('meta')">🎯 Simulador de Metas</div>
+    <div class="tab active" onclick="switchTab('juros', this)">📊 Juros Compostos</div>
+    <div class="tab" onclick="switchTab('meta', this)">🎯 Simulador de Metas</div>
   </div>
 
-  <!-- JUROS -->
+  <!-- JUROS COMPOSTOS -->
   <div id="juros" class="section active">
-    <p style="text-align:center">Use a calculadora de juros compostos que você já criou aqui.</p>
+    <div class="grid">
+      <div>
+        <label>Valor Inicial (R$)</label>
+        <input type="number" id="initial" value="25000">
+      </div>
+
+      <div>
+        <label>Aporte Mensal (R$)</label>
+        <input type="number" id="monthly" value="200">
+      </div>
+
+      <div>
+        <label>Taxa de Juros (%)</label>
+        <input type="number" id="rate" value="15">
+      </div>
+
+      <div>
+        <label>Tipo da Taxa</label>
+        <select id="rateType">
+          <option value="annual">Anual</option>
+          <option value="monthly">Mensal</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Período (anos)</label>
+        <input type="number" id="years" value="10">
+      </div>
+    </div>
+
+    <button class="btn" onclick="calculateCompound()">Calcular</button>
+
+    <div class="results">
+      <div class="card">
+        <h3>Total Investido</h3>
+        <p id="totalInvested">R$ 0,00</p>
+      </div>
+
+      <div class="card">
+        <h3>Juros Ganhos</h3>
+        <p id="interest">R$ 0,00</p>
+      </div>
+
+      <div class="card">
+        <h3>Montante Final</h3>
+        <p id="finalAmount">R$ 0,00</p>
+      </div>
+    </div>
   </div>
 
-  <!-- META -->
+  <!-- SIMULADOR DE METAS -->
   <div id="meta" class="section">
-    <label>Valor da Meta (R$)</label>
-    <input type="number" id="goal" value="500000">
+    <div class="grid">
+      <div>
+        <label>Valor da Meta (R$)</label>
+        <input type="number" id="goal" value="500000">
+      </div>
 
-    <label>Valor Inicial (R$)</label>
-    <input type="number" id="initialMeta" value="20000">
+      <div>
+        <label>Valor Inicial (R$)</label>
+        <input type="number" id="initialGoal" value="20000">
+      </div>
 
-    <label>Taxa de Juros (%)</label>
-    <input type="number" id="rateMeta" value="12">
+      <div>
+        <label>Taxa de Juros (%)</label>
+        <input type="number" id="rateGoal" value="12">
+      </div>
 
-    <label>Tipo da Taxa</label>
-    <select id="rateTypeMeta">
-      <option value="annual">Anual</option>
-      <option value="monthly">Mensal</option>
-    </select>
+      <div>
+        <label>Tipo da Taxa</label>
+        <select id="rateTypeGoal">
+          <option value="annual">Anual</option>
+          <option value="monthly">Mensal</option>
+        </select>
+      </div>
 
-    <label>Prazo (anos)</label>
-    <input type="number" id="timeMeta" value="20">
+      <div>
+        <label>Prazo (anos)</label>
+        <input type="number" id="yearsGoal" value="20">
+      </div>
+    </div>
 
-    <button onclick="calculateGoal()">Calcular Meta</button>
+    <button class="btn" onclick="calculateGoal()">Calcular Meta</button>
 
-    <div class="result-box">
-      <h3>Aporte mensal necessário</h3>
-      <p id="monthlyNeeded">R$ 0,00</p>
+    <div class="results">
+      <div class="card">
+        <h3>Aporte Mensal Necessário</h3>
+        <p id="monthlyGoal">R$ 0,00</p>
+      </div>
     </div>
   </div>
 
   <footer>
-    Desenvolvido por <strong>Macollin Felipe</strong> •
-    <a href="https://www.youtube.com/@macollinfelipe" target="_blank">Canal no YouTube</a>
+    Desenvolvido por <strong>Macollin Felipe</strong>
   </footer>
 </div>
 
 <script>
-  function showTab(id) {
+  function switchTab(id, element) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
 
     document.getElementById(id).classList.add('active');
-    event.target.classList.add('active');
+    element.classList.add('active');
   }
 
-  function formatBRL(v) {
-    return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  function formatBRL(value) {
+    return value.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    });
+  }
+
+  function calculateCompound() {
+    const initial = Number(initial.value);
+    const monthly = Number(monthly.value);
+    let rateValue = Number(rate.value) / 100;
+    const yearsValue = Number(years.value);
+
+    if (rateType.value === 'annual') rateValue /= 12;
+
+    const months = yearsValue * 12;
+
+    let total = initial;
+    let invested = initial;
+
+    for (let i = 0; i < months; i++) {
+      total = total * (1 + rateValue) + monthly;
+      invested += monthly;
+    }
+
+    totalInvested.innerText = formatBRL(invested);
+    finalAmount.innerText = formatBRL(total);
+    interest.innerText = formatBRL(total - invested);
   }
 
   function calculateGoal() {
-    const goal = Number(document.getElementById('goal').value);
-    const initial = Number(document.getElementById('initialMeta').value);
-    let rate = Number(document.getElementById('rateMeta').value) / 100;
-    const rateType = document.getElementById('rateTypeMeta').value;
-    const years = Number(document.getElementById('timeMeta').value);
+    const goal = Number(goalInput = document.getElementById('goal').value);
+    const initial = Number(initialGoal.value);
+    let rateValue = Number(rateGoal.value) / 100;
+    const yearsValue = Number(yearsGoal.value);
 
-    if (rateType === 'annual') rate /= 12;
+    if (rateTypeGoal.value === 'annual') rateValue /= 12;
 
-    const months = years * 12;
+    const months = yearsValue * 12;
 
-    let monthly = (goal - initial * Math.pow(1 + rate, months)) /
-                  ((Math.pow(1 + rate, months) - 1) / rate);
+    let monthly =
+      (goal - initial * Math.pow(1 + rateValue, months)) /
+      ((Math.pow(1 + rateValue, months) - 1) / rateValue);
 
-    monthly = Math.max(monthly, 0);
-
-    document.getElementById('monthlyNeeded').innerText = formatBRL(monthly);
+    monthlyGoal.innerText = formatBRL(Math.max(monthly, 0));
   }
 </script>
 </body>
