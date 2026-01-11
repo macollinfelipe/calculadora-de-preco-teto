@@ -110,6 +110,7 @@
       width: 100%;
       border-collapse: collapse;
       margin-top: 40px;
+      font-size: 14px;
     }
 
     table th, table td {
@@ -201,8 +202,9 @@
     <thead>
       <tr>
         <th>Mês</th>
-        <th>Saldo</th>
-        <th>Total Investido</th>
+        <th>Capital Investido</th>
+        <th>Juros Acumulados</th>
+        <th>Saldo Total</th>
       </tr>
     </thead>
     <tbody id="tableBody"></tbody>
@@ -258,31 +260,30 @@ function calculate() {
   tbody.innerHTML = '';
 
   for (let month = 1; month <= time; month++) {
-    balance = balance * (1 + rate);
+    balance *= (1 + rate);
     balance += monthly;
 
     const invested = initial + monthly * month;
     const interest = balance - invested;
 
     labels.push(month);
-    totalData.push(Number(balance.toFixed(2)));
-    investedData.push(Number(invested.toFixed(2)));
-    interestData.push(Number(interest.toFixed(2)));
+    totalData.push(balance);
+    investedData.push(invested);
+    interestData.push(interest);
 
     tbody.insertAdjacentHTML('beforeend', `
       <tr>
         <td style="text-align:center">${month}</td>
-        <td>${formatBRL(balance)}</td>
         <td>${formatBRL(invested)}</td>
+        <td>${formatBRL(interest)}</td>
+        <td><strong>${formatBRL(balance)}</strong></td>
       </tr>
     `);
   }
 
-  const finalInvested = initial + monthly * time;
-
-  document.getElementById('totalInvested').innerText = formatBRL(finalInvested);
+  document.getElementById('totalInvested').innerText = formatBRL(initial + monthly * time);
+  document.getElementById('interest').innerText = formatBRL(balance - (initial + monthly * time));
   document.getElementById('total').innerText = formatBRL(balance);
-  document.getElementById('interest').innerText = formatBRL(balance - finalInvested);
 
   if (chart) chart.destroy();
 
@@ -291,8 +292,8 @@ function calculate() {
     data: {
       labels,
       datasets: [
-        { label: 'Montante Total', data: totalData, borderWidth: 2 },
-        { label: 'Total Investido', data: investedData, borderWidth: 2 },
+        { label: 'Saldo Total', data: totalData, borderWidth: 2 },
+        { label: 'Capital Investido', data: investedData, borderWidth: 2 },
         { label: 'Juros Acumulados', data: interestData, borderWidth: 2 }
       ]
     },
