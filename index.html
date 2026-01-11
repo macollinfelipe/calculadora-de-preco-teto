@@ -91,7 +91,7 @@
     }
 
     .card h3 {
-      margin: 0 0 6px;
+      margin: 0 0 8px;
       font-size: 15px;
       color: #334155;
     }
@@ -110,7 +110,6 @@
       width: 100%;
       border-collapse: collapse;
       margin-top: 40px;
-      font-size: 14px;
     }
 
     table th, table td {
@@ -123,186 +122,204 @@
       background: #f8fafc;
       text-align: center;
     }
-
-    footer {
-      margin-top: 60px;
-      padding-top: 20px;
-      border-top: 1px solid #e2e8f0;
-      text-align: center;
-      font-size: 14px;
-      color: #475569;
-    }
   </style>
 </head>
 
 <body>
-<div class="container">
-  <h1>Calculadora de Juros Compostos</h1>
+  <div class="container">
+    <h1>Calculadora de Juros Compostos</h1>
 
-  <div class="form">
-    <div>
-      <label>Valor Inicial (R$)</label>
-      <input type="text" id="initial" value="25.000,00">
+    <div class="form">
+      <div>
+        <label>Valor Inicial (R$)</label>
+        <input type="text" id="initial" value="25.000,00">
+      </div>
+      <div>
+        <label>Aporte Mensal (R$)</label>
+        <input type="text" id="monthly" value="200,00">
+      </div>
+      <div>
+        <label>Taxa de Juros (%)</label>
+        <input type="number" id="rate" value="15">
+      </div>
+      <div>
+        <label>Tipo da Taxa</label>
+        <select id="rateType">
+          <option value="monthly">Mensal</option>
+          <option value="annual" selected>Anual</option>
+        </select>
+      </div>
+      <div>
+        <label>Período</label>
+        <input type="number" id="time" value="10">
+      </div>
+      <div>
+        <label>Tipo do Período</label>
+        <select id="timeType">
+          <option value="years" selected>Anos</option>
+          <option value="months">Meses</option>
+        </select>
+      </div>
     </div>
 
-    <div>
-      <label>Aporte Mensal (R$)</label>
-      <input type="text" id="monthly" value="200,00">
+    <div class="actions">
+      <button onclick="calculate()">Calcular</button>
     </div>
 
-    <div>
-      <label>Taxa de Juros (%)</label>
-      <input type="number" id="rate" value="15" step="0.01">
+    <div class="results">
+      <div class="card">
+        <h3>Total Investido</h3>
+        <p id="totalInvested">R$ 0,00</p>
+      </div>
+      <div class="card">
+        <h3>Juros Ganhos</h3>
+        <p id="interest">R$ 0,00</p>
+      </div>
+      <div class="card">
+        <h3>Montante Final</h3>
+        <p id="total">R$ 0,00</p>
+      </div>
     </div>
 
-    <div>
-      <label>Tipo da Taxa</label>
-      <select id="rateType">
-        <option value="monthly">Mensal</option>
-        <option value="annual" selected>Anual</option>
-      </select>
-    </div>
+    <canvas id="chart"></canvas>
 
-    <div>
-      <label>Período</label>
-      <input type="number" id="time" value="10">
-    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Mês</th>
+          <th>Capital Investido</th>
+          <th>Juros Ganhos</th>
+          <th>Saldo Total</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
 
-    <div>
-      <label>Tipo do Período</label>
-      <select id="timeType">
-        <option value="years" selected>Anos</option>
-        <option value="months">Meses</option>
-      </select>
-    </div>
+    <footer style="margin-top:60px;padding-top:20px;border-top:1px solid #e2e8f0;text-align:center;font-size:14px;">
+      Desenvolvido por <strong>Macollin Felipe</strong> • 
+      <a href="https://www.youtube.com/@macollinfelipe" target="_blank">Canal no YouTube</a>
+    </footer>
   </div>
-
-  <div class="actions">
-    <button onclick="calculate()">Calcular</button>
-  </div>
-
-  <div class="results">
-    <div class="card">
-      <h3>Total Investido</h3>
-      <p id="totalInvested">R$ 0,00</p>
-    </div>
-    <div class="card">
-      <h3>Juros Ganhos</h3>
-      <p id="interest">R$ 0,00</p>
-    </div>
-    <div class="card">
-      <h3>Montante Final</h3>
-      <p id="total">R$ 0,00</p>
-    </div>
-  </div>
-
-  <canvas id="chart"></canvas>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Mês</th>
-        <th>Capital Investido</th>
-        <th>Juros Acumulados</th>
-        <th>Saldo Total</th>
-      </tr>
-    </thead>
-    <tbody id="tableBody"></tbody>
-  </table>
-
-  <footer>
-    Desenvolvido por <strong>Macollin Felipe</strong> •
-    <a href="https://www.youtube.com/@macollinfelipe" target="_blank" style="color:#0f172a;font-weight:bold;text-decoration:none;">
-      Canal no YouTube
-    </a>
-  </footer>
-</div>
 
 <script>
-let chart;
+  let chart;
 
-function parseBRL(value) {
-  return Number(value.replace(/\./g, '').replace(',', '.')) || 0;
-}
-
-function formatBRL(value) {
-  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-}
-
-function applyCurrencyMask(input) {
-  input.addEventListener('blur', () => {
-    const val = parseBRL(input.value);
-    input.value = formatBRL(val).replace('R$', '').trim();
-  });
-}
-
-['initial', 'monthly'].forEach(id => applyCurrencyMask(document.getElementById(id)));
-
-function calculate() {
-  const initial = parseBRL(document.getElementById('initial').value);
-  const monthly = parseBRL(document.getElementById('monthly').value);
-  let rate = Number(document.getElementById('rate').value) / 100;
-  const rateType = document.getElementById('rateType').value;
-  let time = Number(document.getElementById('time').value);
-  const timeType = document.getElementById('timeType').value;
-
-  if (rateType === 'annual') rate /= 12;
-  if (timeType === 'years') time *= 12;
-
-  let balance = initial;
-
-  const labels = [];
-  const totalData = [];
-  const investedData = [];
-  const interestData = [];
-
-  const tbody = document.getElementById('tableBody');
-  tbody.innerHTML = '';
-
-  for (let month = 1; month <= time; month++) {
-    balance *= (1 + rate);
-    balance += monthly;
-
-    const invested = initial + monthly * month;
-    const interest = balance - invested;
-
-    labels.push(month);
-    totalData.push(balance);
-    investedData.push(invested);
-    interestData.push(interest);
-
-    tbody.insertAdjacentHTML('beforeend', `
-      <tr>
-        <td style="text-align:center">${month}</td>
-        <td>${formatBRL(invested)}</td>
-        <td>${formatBRL(interest)}</td>
-        <td><strong>${formatBRL(balance)}</strong></td>
-      </tr>
-    `);
+  function parseBRL(value) {
+    return Number(value.replace(/\./g, '').replace(',', '.')) || 0;
   }
 
-  document.getElementById('totalInvested').innerText = formatBRL(initial + monthly * time);
-  document.getElementById('interest').innerText = formatBRL(balance - (initial + monthly * time));
-  document.getElementById('total').innerText = formatBRL(balance);
+  function formatBRL(value) {
+    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
 
-  if (chart) chart.destroy();
+  function calculate() {
+    const initial = parseBRL(document.getElementById('initial').value);
+    const monthly = parseBRL(document.getElementById('monthly').value);
+    let rate = Number(document.getElementById('rate').value) / 100;
+    let time = Number(document.getElementById('time').value);
 
-  chart = new Chart(document.getElementById('chart'), {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        { label: 'Saldo Total', data: totalData, borderWidth: 2 },
-        { label: 'Capital Investido', data: investedData, borderWidth: 2 },
-        { label: 'Juros Acumulados', data: interestData, borderWidth: 2 }
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { position: 'bottom' } }
+    rate /= 12;
+    time *= 12;
+
+    let balance = initial;
+    let invested = initial;
+
+    const labels = [];
+    const totalData = [];
+    const investedData = [];
+    const interestData = [];
+
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+
+    for (let i = 1; i <= time; i++) {
+      balance = balance * (1 + rate) + monthly;
+      invested += monthly;
+
+      labels.push(i);
+      totalData.push(balance);
+      investedData.push(invested);
+      interestData.push(balance - invested);
+
+      tbody.insertAdjacentHTML('beforeend', `
+        <tr>
+          <td style="text-align:center">${i}</td>
+          <td>${formatBRL(invested)}</td>
+          <td>${formatBRL(balance - invested)}</td>
+          <td>${formatBRL(balance)}</td>
+        </tr>
+      `);
     }
-  });
-}
+
+    document.getElementById('totalInvested').innerText = formatBRL(invested);
+    document.getElementById('interest').innerText = formatBRL(balance - invested);
+    document.getElementById('total').innerText = formatBRL(balance);
+
+    if (chart) chart.destroy();
+
+    chart = new Chart(document.getElementById('chart'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Saldo Total',
+            data: totalData,
+            borderWidth: 3,
+            tension: 0.35,
+            pointRadius: 0,
+            pointHoverRadius: 6
+          },
+          {
+            label: 'Capital Investido',
+            data: investedData,
+            borderDash: [6,4],
+            borderWidth: 2,
+            tension: 0.35,
+            pointRadius: 0,
+            pointHoverRadius: 5
+          },
+          {
+            label: 'Juros Acumulados',
+            data: interestData,
+            borderWidth: 2,
+            tension: 0.35,
+            pointRadius: 0,
+            pointHoverRadius: 5
+          }
+        ]
+      },
+      options: {
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { usePointStyle: true }
+          },
+          tooltip: {
+            backgroundColor: '#0f172a',
+            padding: 14,
+            callbacks: {
+              title: ctx => `Mês ${ctx[0].label}`,
+              label: ctx => `${ctx.dataset.label}: ${formatBRL(ctx.raw)}`
+            }
+          }
+        },
+        scales: {
+          y: {
+            ticks: { callback: v => formatBRL(v) }
+          }
+        },
+        animation: {
+          duration: 900,
+          easing: 'easeOutQuart'
+        }
+      }
+    });
+  }
 </script>
 </body>
 </html>
