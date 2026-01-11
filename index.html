@@ -87,16 +87,11 @@
       background: var(--gray);
       padding: 24px;
       border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 120px;
       text-align: center;
     }
 
     .card h3 {
-      margin: 0 0 8px;
+      margin: 0 0 6px;
       font-size: 15px;
       color: #334155;
     }
@@ -127,174 +122,186 @@
       background: #f8fafc;
       text-align: center;
     }
+
+    footer {
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid #e2e8f0;
+      text-align: center;
+      font-size: 14px;
+      color: #475569;
+    }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <h1>Calculadora de Juros Compostos</h1>
+<div class="container">
+  <h1>Calculadora de Juros Compostos</h1>
 
-    <div class="form">
-      <div>
-        <label>Valor Inicial (R$)</label>
-        <input type="text" id="initial" value="25.000,00">
-      </div>
-
-      <div>
-        <label>Aporte Mensal (R$)</label>
-        <input type="text" id="monthly" value="200,00">
-      </div>
-
-      <div>
-        <label>Taxa de Juros (%)</label>
-        <input type="number" id="rate" value="15" step="0.01">
-      </div>
-
-      <div>
-        <label>Tipo da Taxa</label>
-        <select id="rateType">
-          <option value="monthly">Mensal</option>
-          <option value="annual" selected>Anual</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Período</label>
-        <input type="number" id="time" value="10">
-      </div>
-
-      <div>
-        <label>Tipo do Período</label>
-        <select id="timeType">
-          <option value="years" selected>Anos</option>
-          <option value="months">Meses</option>
-        </select>
-      </div>
+  <div class="form">
+    <div>
+      <label>Valor Inicial (R$)</label>
+      <input type="text" id="initial" value="25.000,00">
     </div>
 
-    <div class="actions">
-      <button onclick="calculate()">Calcular</button>
+    <div>
+      <label>Aporte Mensal (R$)</label>
+      <input type="text" id="monthly" value="200,00">
     </div>
 
-    <div class="results">
-      <div class="card">
-        <h3>Total Investido</h3>
-        <p id="totalInvested">R$ 0,00</p>
-      </div>
-      <div class="card">
-        <h3>Juros Ganhos</h3>
-        <p id="interest">R$ 0,00</p>
-      </div>
-      <div class="card">
-        <h3>Montante Final</h3>
-        <p id="total">R$ 0,00</p>
-      </div>
+    <div>
+      <label>Taxa de Juros (%)</label>
+      <input type="number" id="rate" value="15" step="0.01">
     </div>
 
-    <canvas id="chart"></canvas>
+    <div>
+      <label>Tipo da Taxa</label>
+      <select id="rateType">
+        <option value="monthly">Mensal</option>
+        <option value="annual" selected>Anual</option>
+      </select>
+    </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Mês</th>
-          <th>Saldo</th>
-          <th>Total Investido</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
+    <div>
+      <label>Período</label>
+      <input type="number" id="time" value="10">
+    </div>
 
-    <footer style="margin-top:60px;padding-top:20px;border-top:1px solid #e2e8f0;text-align:center;font-size:14px;color:#475569;">
-      Desenvolvido por <strong>Macollin Felipe</strong> • 
-      <a href="https://www.youtube.com/@macollinfelipe" target="_blank" style="color:#0f172a;font-weight:bold;text-decoration:none;">
-        Canal no YouTube
-      </a>
-    </footer>
+    <div>
+      <label>Tipo do Período</label>
+      <select id="timeType">
+        <option value="years" selected>Anos</option>
+        <option value="months">Meses</option>
+      </select>
+    </div>
   </div>
 
+  <div class="actions">
+    <button onclick="calculate()">Calcular</button>
+  </div>
+
+  <div class="results">
+    <div class="card">
+      <h3>Total Investido</h3>
+      <p id="totalInvested">R$ 0,00</p>
+    </div>
+    <div class="card">
+      <h3>Juros Ganhos</h3>
+      <p id="interest">R$ 0,00</p>
+    </div>
+    <div class="card">
+      <h3>Montante Final</h3>
+      <p id="total">R$ 0,00</p>
+    </div>
+  </div>
+
+  <canvas id="chart"></canvas>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Mês</th>
+        <th>Saldo</th>
+        <th>Total Investido</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+
+  <footer>
+    Desenvolvido por <strong>Macollin Felipe</strong> •
+    <a href="https://www.youtube.com/@macollinfelipe" target="_blank" style="color:#0f172a;font-weight:bold;text-decoration:none;">
+      Canal no YouTube
+    </a>
+  </footer>
+</div>
+
 <script>
-  let chart;
+let chart;
 
-  function parseBRL(value) {
-    return Number(value.replace(/\./g, '').replace(',', '.')) || 0;
+function parseBRL(value) {
+  return Number(value.replace(/\./g, '').replace(',', '.')) || 0;
+}
+
+function formatBRL(value) {
+  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+function applyCurrencyMask(input) {
+  input.addEventListener('blur', () => {
+    const val = parseBRL(input.value);
+    input.value = formatBRL(val).replace('R$', '').trim();
+  });
+}
+
+['initial', 'monthly'].forEach(id => applyCurrencyMask(document.getElementById(id)));
+
+function calculate() {
+  const initial = parseBRL(document.getElementById('initial').value);
+  const monthly = parseBRL(document.getElementById('monthly').value);
+  let rate = Number(document.getElementById('rate').value) / 100;
+  const rateType = document.getElementById('rateType').value;
+  let time = Number(document.getElementById('time').value);
+  const timeType = document.getElementById('timeType').value;
+
+  if (rateType === 'annual') rate /= 12;
+  if (timeType === 'years') time *= 12;
+
+  let balance = initial;
+
+  const labels = [];
+  const totalData = [];
+  const investedData = [];
+  const interestData = [];
+
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+
+  for (let month = 1; month <= time; month++) {
+    balance = balance * (1 + rate);
+    balance += monthly;
+
+    const invested = initial + monthly * month;
+    const interest = balance - invested;
+
+    labels.push(month);
+    totalData.push(Number(balance.toFixed(2)));
+    investedData.push(Number(invested.toFixed(2)));
+    interestData.push(Number(interest.toFixed(2)));
+
+    tbody.insertAdjacentHTML('beforeend', `
+      <tr>
+        <td style="text-align:center">${month}</td>
+        <td>${formatBRL(balance)}</td>
+        <td>${formatBRL(invested)}</td>
+      </tr>
+    `);
   }
 
-  function formatBRL(value) {
-    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-  }
+  const finalInvested = initial + monthly * time;
 
-  function applyCurrencyMask(input) {
-    input.addEventListener('blur', () => {
-      const val = parseBRL(input.value);
-      input.value = formatBRL(val).replace('R$', '').trim();
-    });
-  }
+  document.getElementById('totalInvested').innerText = formatBRL(finalInvested);
+  document.getElementById('total').innerText = formatBRL(balance);
+  document.getElementById('interest').innerText = formatBRL(balance - finalInvested);
 
-  ['initial', 'monthly'].forEach(id => applyCurrencyMask(document.getElementById(id)));
+  if (chart) chart.destroy();
 
-  function calculate() {
-    const initial = parseBRL(document.getElementById('initial').value);
-    const monthly = parseBRL(document.getElementById('monthly').value);
-    let rate = Number(document.getElementById('rate').value) / 100;
-    const rateType = document.getElementById('rateType').value;
-    let time = Number(document.getElementById('time').value);
-    const timeType = document.getElementById('timeType').value;
-
-    if (rateType === 'annual') rate /= 12;
-    if (timeType === 'years') time *= 12;
-
-    let balance = initial;
-    let invested = initial;
-
-    const labels = [];
-    const totalData = [];
-    const investedData = [];
-    const interestData = [];
-
-    const tbody = document.getElementById('tableBody');
-    tbody.innerHTML = '';
-
-    for (let i = 1; i <= time; i++) {
-      balance = balance * (1 + rate) + monthly;
-      invested += monthly;
-
-      labels.push(i);
-      totalData.push(balance);
-      investedData.push(invested);
-      interestData.push(balance - invested);
-
-      tbody.insertAdjacentHTML('beforeend', `
-        <tr>
-          <td style="text-align:center">${i}</td>
-          <td>${formatBRL(balance)}</td>
-          <td>${formatBRL(invested)}</td>
-        </tr>
-      `);
+  chart = new Chart(document.getElementById('chart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Montante Total', data: totalData, borderWidth: 2 },
+        { label: 'Total Investido', data: investedData, borderWidth: 2 },
+        { label: 'Juros Acumulados', data: interestData, borderWidth: 2 }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'bottom' } }
     }
-
-    document.getElementById('totalInvested').innerText = formatBRL(invested);
-    document.getElementById('total').innerText = formatBRL(balance);
-    document.getElementById('interest').innerText = formatBRL(balance - invested);
-
-    if (chart) chart.destroy();
-
-    chart = new Chart(document.getElementById('chart'), {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [
-          { label: 'Montante Total', data: totalData, borderWidth: 2 },
-          { label: 'Total Investido', data: investedData, borderWidth: 2 },
-          { label: 'Juros Acumulados', data: interestData, borderWidth: 2 }
-        ]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { position: 'bottom' } }
-      }
-    });
-  }
+  });
+}
 </script>
 </body>
 </html>
-
